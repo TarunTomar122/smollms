@@ -1,5 +1,7 @@
 # smollms
 
+![William Shakespeare teaching Qwen 3.6, Kimi K3, GLM 5.2, and DeepSeek V4 as tiny robot students](docs/assets/shakespeare-teaches-tiny-llms.png)
+
 Tiny, inspectable language models for learning what modern LLM architecture
 ideas actually change.
 
