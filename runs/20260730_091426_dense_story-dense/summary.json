@@ -1,0 +1,18 @@
+{
+  "arch": "dense",
+  "best_val_loss": 1.4702077746391295,
+  "best_val_step": 1700,
+  "checkpoint": "checkpoint.pt",
+  "dataset": "shakespeare",
+  "device": "cpu",
+  "final_train_loss": 1.4840763807296753,
+  "final_val_loss": 1.4744769990444184,
+  "n_samples": 1,
+  "n_train_logs": 81,
+  "n_val_logs": 20,
+  "param_count_unique": 800256,
+  "plot": "plots/loss_curves.png",
+  "run_id": "20260730_091426_dense_story-dense",
+  "status": "completed",
+  "wall_time_sec": 230.291
+}

@@ -1,0 +1,18 @@
+{
+  "arch": "glm",
+  "best_val_loss": 2.050048553943634,
+  "best_val_step": 1999,
+  "checkpoint": "checkpoint.pt",
+  "dataset": "shakespeare",
+  "device": "cpu",
+  "final_train_loss": 1.9817140102386475,
+  "final_val_loss": 2.050048553943634,
+  "n_samples": 1,
+  "n_train_logs": 81,
+  "n_val_logs": 20,
+  "param_count_unique": 1454080,
+  "plot": "plots/loss_curves.png",
+  "run_id": "20260729_165343_glm_glm-dense-prefix-sigmoid-moe",
+  "status": "completed",
+  "wall_time_sec": 377.461
+}

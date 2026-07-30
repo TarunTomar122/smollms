@@ -1,0 +1,17 @@
+{
+  "arch": "kimi",
+  "best_val_loss": 2.970005762577057,
+  "best_val_step": 39,
+  "checkpoint": "checkpoint.pt",
+  "device": "cpu",
+  "final_train_loss": 2.8806986808776855,
+  "final_val_loss": 2.970005762577057,
+  "n_samples": 1,
+  "n_train_logs": 5,
+  "n_val_logs": 2,
+  "param_count_unique": 51776,
+  "plot": "plots/loss_curves.png",
+  "run_id": "20260728_165258_kimi_exp-smoke",
+  "status": "completed",
+  "wall_time_sec": 3.0
+}

@@ -1,0 +1,25 @@
+{
+  "config": {
+    "bias": false,
+    "compression_ratio": 4,
+    "d_model": 128,
+    "dropout": 0.0,
+    "local_window": 16,
+    "max_seq_len": 64,
+    "moe_mode": "mixed",
+    "n_active": 2,
+    "n_experts": 4,
+    "n_hash_moe_layers": 1,
+    "n_heads": 4,
+    "n_layers": 4,
+    "n_shared": 1,
+    "qk_norm": true,
+    "rope_base": 10000.0,
+    "swiglu_limit": 10.0,
+    "tie_weights": true,
+    "vocab_size": 65
+  },
+  "config_type": "V4ToyLMConfig",
+  "param_count": 1289728,
+  "param_count_unique": 1289728
+}

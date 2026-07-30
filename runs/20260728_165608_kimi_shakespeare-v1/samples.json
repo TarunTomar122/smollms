@@ -1,0 +1,43 @@
+[
+  {
+    "max_new_tokens": 150,
+    "prompt": "To be",
+    "step": 100,
+    "temperature": 0.8,
+    "text": "To bent of for ging and with and fold\nEwand sen hor lnit youn thening loten,\nAd ham so thowever ard tite poud an urd wmend\nte hout o sive buverin the the K",
+    "wall_time_sec": 21.2893
+  },
+  {
+    "max_new_tokens": 150,
+    "prompt": "To be",
+    "step": 200,
+    "temperature": 0.8,
+    "text": "To be rive my not stir, nicwour and madk, and,\nMor in hore tham ther aan lupho.\n\nLOUxerve mour?\n\nRAUCENRY:\nAve me cionst that come and thaciy come, warl.\n\n",
+    "wall_time_sec": 41.5201
+  },
+  {
+    "max_new_tokens": 150,
+    "prompt": "To be",
+    "step": 300,
+    "temperature": 0.8,
+    "text": "To bese at werkees my herigh tise\nAndscom, thang not for am dis no I hull\nThis thung, to shen mest shou hach she we then here\nAnd and a werese.\n\nHOND tHI:\n",
+    "wall_time_sec": 63.1372
+  },
+  {
+    "max_new_tokens": 150,
+    "prompt": "To be",
+    "step": 400,
+    "temperature": 0.8,
+    "text": "To ber if thou heads,\nWe thou that what be your cive sire him forst?\n\nFire,\nSaidies, sisty, the do lares gay!\n--shall what in to searn plase this piantifou",
+    "wall_time_sec": 85.5481
+  },
+  {
+    "final": true,
+    "max_new_tokens": 150,
+    "prompt": "To be",
+    "step": 499,
+    "temperature": 0.8,
+    "text": "To be\ndo the worger they then bust think of the ven of my this make\nFrever are to thound cown.\n\nRACESTEnectionlend\nIt to is as thought s't be his acher wee",
+    "wall_time_sec": 104.7703
+  }
+]

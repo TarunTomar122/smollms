@@ -1,0 +1,10 @@
+{
+  "block_size": 128,
+  "data_path": "data/tinyshakespeare.txt",
+  "n_chars": 1115394,
+  "n_chars_check": 1115394,
+  "text_sha256_16": "86c4e6aa9db7c042",
+  "train_windows": 1003726,
+  "val_windows": 111412,
+  "vocab_size": 65
+}

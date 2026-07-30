@@ -1,0 +1,18 @@
+{
+  "arch": "kimi2",
+  "best_val_loss": 1.4954810380935668,
+  "best_val_step": 1800,
+  "checkpoint": "checkpoint.pt",
+  "dataset": "shakespeare",
+  "device": "cpu",
+  "final_train_loss": 1.4817310571670532,
+  "final_val_loss": 1.5355113863945007,
+  "n_samples": 1,
+  "n_train_logs": 81,
+  "n_val_logs": 20,
+  "param_count_unique": 502659,
+  "plot": "plots/loss_curves.png",
+  "run_id": "20260729_161314_kimi2",
+  "status": "completed",
+  "wall_time_sec": 1191.295
+}

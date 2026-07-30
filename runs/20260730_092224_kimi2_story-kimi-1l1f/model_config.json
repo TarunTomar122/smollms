@@ -1,0 +1,27 @@
+{
+  "config": {
+    "attn_res_depth": 2,
+    "aux_loss_weight": 0.01,
+    "bias": false,
+    "d_latent": null,
+    "d_model": 128,
+    "dropout": 0.0,
+    "hybrid_pattern": "1L1F",
+    "kimi_step": 2,
+    "max_seq_len": 64,
+    "n_active": 2,
+    "n_experts": 4,
+    "n_heads": 4,
+    "n_kv_heads": 4,
+    "n_layers": 4,
+    "n_shared": 1,
+    "qk_norm": true,
+    "rope_base": 10000.0,
+    "tie_weights": true,
+    "use_attn_res": false,
+    "vocab_size": 65
+  },
+  "config_type": "KimiLMConfig",
+  "param_count": 469888,
+  "param_count_unique": 469888
+}

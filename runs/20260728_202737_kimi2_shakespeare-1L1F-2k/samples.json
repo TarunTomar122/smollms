@@ -1,0 +1,83 @@
+[
+  {
+    "max_new_tokens": 150,
+    "prompt": "To be",
+    "step": 200,
+    "temperature": 0.8,
+    "text": "To belle.\n\nCzUGCim':\nO haren,\nFald duce swan cirtillor Mathere her of theat ond's of weed enod hene greee welleard.\n\nCIONd haw Look:\nAnd pake is ind? I ung",
+    "wall_time_sec": 135.087
+  },
+  {
+    "max_new_tokens": 150,
+    "prompt": "To be",
+    "step": 400,
+    "temperature": 0.8,
+    "text": "To beatey shat is brairings: I thes my thy sorded shus nother:\nBy my pirce, the clarthave I my too dear wouly for I sime winge whe you\nAnrealf is as the we",
+    "wall_time_sec": 210.4919
+  },
+  {
+    "max_new_tokens": 150,
+    "prompt": "To be",
+    "step": 600,
+    "temperature": 0.8,
+    "text": "To bet these God marst not\nGood shall in your meart him now the like the the juth.\n\nSuriniol:\nThis hy mustice, will not the raith my\nRirt and the whuse wou",
+    "wall_time_sec": 264.8492
+  },
+  {
+    "max_new_tokens": 150,
+    "prompt": "To be",
+    "step": 800,
+    "temperature": 0.8,
+    "text": "To be that undam of\nMyselth, and feauning to me spawill ambous you,\nUnwa, nay yet this in all you bear to all agive:\nHe still shalk.\nHer here who this and ",
+    "wall_time_sec": 318.0202
+  },
+  {
+    "max_new_tokens": 150,
+    "prompt": "To be",
+    "step": 1000,
+    "temperature": 0.8,
+    "text": "To bert.\n\nGLOUCESTER:\nHere all they hope and turse in at the wouse,\nDo how mull this to for receil wold your withing?\n\nBENVOLIO:\nI have you sis fare be not",
+    "wall_time_sec": 369.0476
+  },
+  {
+    "max_new_tokens": 150,
+    "prompt": "To be",
+    "step": 1200,
+    "temperature": 0.8,
+    "text": "To believer in rates?\n\nGLOUCESTER:\nSir langed is it, be well of me, and newcand\nShall glow made done bode heard to leady.\nAnd most Coriolo.\n\nGLOUCESTER:\nBu",
+    "wall_time_sec": 417.6284
+  },
+  {
+    "max_new_tokens": 150,
+    "prompt": "To be",
+    "step": 1400,
+    "temperature": 0.8,
+    "text": "To be father.\n\nANGELO:\n\nBalish Citing the pace.\n\nBolieve of my stand.\n\nHAW:\nNor will:\nI isbest diars, and the issusies beast,\nMy can for him die an his ast",
+    "wall_time_sec": 460.4861
+  },
+  {
+    "max_new_tokens": 150,
+    "prompt": "To be",
+    "step": 1600,
+    "temperature": 0.8,
+    "text": "To being her man:\nAnd is thus stoled's it newmich, and sporten\nWhite a him the day estreed maids the cast having en'd housand,\nMare not that say horses a t",
+    "wall_time_sec": 500.625
+  },
+  {
+    "max_new_tokens": 150,
+    "prompt": "To be",
+    "step": 1800,
+    "temperature": 0.8,
+    "text": "To be desteration and:\nAnd the nit child rather I blood souch thy heart\nThat em to the manstive till and your streat,\nLest we for tricks of this tauce's to",
+    "wall_time_sec": 541.9151
+  },
+  {
+    "final": true,
+    "max_new_tokens": 150,
+    "prompt": "To be",
+    "step": 1999,
+    "temperature": 0.8,
+    "text": "To be to look lives to not do thy take,\nAre thring of ere artones for a lark in his\nFor calies and prosed to king true thee.\n\nSIMINIUS:\nIt pleasen to dear ",
+    "wall_time_sec": 583.2315
+  }
+]

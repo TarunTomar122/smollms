@@ -1,0 +1,43 @@
+[
+  {
+    "max_new_tokens": 150,
+    "prompt": "To be",
+    "step": 100,
+    "temperature": 0.8,
+    "text": "To be his?\n\nCOLIBED:\nKy insdes soute't hal my minmit thas  torin ous,\nThe wen, ratecr tot illes as cer fut;\nInl tan', ansr, eard oul siu olor ang saly;\nWhe",
+    "wall_time_sec": 61.1575
+  },
+  {
+    "max_new_tokens": 150,
+    "prompt": "To be",
+    "step": 200,
+    "temperature": 0.8,
+    "text": "To be hemy?\nTho so me the Oprole me mough' wind atss orle.\n\nBETEN:\nSith be of of he cooo-rourt has inser coder palere\nSirmet Vod hand eas, friy nor whes.\n\n",
+    "wall_time_sec": 122.3073
+  },
+  {
+    "max_new_tokens": 150,
+    "prompt": "To be",
+    "step": 300,
+    "temperature": 0.8,
+    "text": "To bestenitien casion bre the andstent\nUin spe, lece tall beand, and deor tith fore toin,\nMy me eaker, with ort on the an ford be\ncommy: an the anous hy th",
+    "wall_time_sec": 189.574
+  },
+  {
+    "max_new_tokens": 150,
+    "prompt": "To be",
+    "step": 400,
+    "temperature": 0.8,
+    "text": "To besant shing hame of Rome,\nNues, with minghat at mather of on tat freed?-\nMES: ar Busonn that ell ring in traghel:\nNo nee thnour hat do sed, Werring My ",
+    "wall_time_sec": 253.1134
+  },
+  {
+    "final": true,
+    "max_new_tokens": 150,
+    "prompt": "To be",
+    "step": 499,
+    "temperature": 0.8,
+    "text": "To be seard,\nAnd woull we are sock; we lord for sepprath his fore me,\nWith surllft the fair; your fold lordole hall thou to sencesty couses,\nAnd the the se",
+    "wall_time_sec": 315.49
+  }
+]

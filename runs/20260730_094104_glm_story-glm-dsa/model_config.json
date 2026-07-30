@@ -1,0 +1,23 @@
+{
+  "config": {
+    "attention_kind": "sparse",
+    "bias": false,
+    "d_model": 128,
+    "dropout": 0.0,
+    "max_seq_len": 64,
+    "n_active": 2,
+    "n_dense_layers": 1,
+    "n_experts": 4,
+    "n_heads": 4,
+    "n_layers": 4,
+    "n_shared": 1,
+    "qk_norm": true,
+    "rope_base": 10000.0,
+    "sparse_top_k": 8,
+    "tie_weights": true,
+    "vocab_size": 65
+  },
+  "config_type": "GLMLMConfig",
+  "param_count": 1454080,
+  "param_count_unique": 1454080
+}

@@ -1,0 +1,27 @@
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+dist/
+build/
+*.pt
+*.pth
+data/*
+!data/tinyshakespeare.txt
+wandb/
+# Keep the small, inspectable parts of committed experiment runs. Checkpoints,
+# metric streams, and generated plots remain local artifacts.
+runs/*
+!runs/*/
+runs/*/*
+!runs/*/meta.json
+!runs/*/summary.json
+!runs/*/model_config.json
+!runs/*/train_args.json
+!runs/*/data_info.json
+!runs/*/samples.json
+checkpoints/
+.DS_Store

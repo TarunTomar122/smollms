@@ -1,0 +1,19 @@
+{
+  "config": {
+    "bias": false,
+    "compression_ratio": 4,
+    "d_model": 128,
+    "dropout": 0.0,
+    "local_window": 16,
+    "max_seq_len": 64,
+    "n_heads": 4,
+    "n_layers": 4,
+    "qk_norm": true,
+    "rope_base": 10000.0,
+    "tie_weights": true,
+    "vocab_size": 65
+  },
+  "config_type": "V4ToyLMConfig",
+  "param_count": 833024,
+  "param_count_unique": 833024
+}

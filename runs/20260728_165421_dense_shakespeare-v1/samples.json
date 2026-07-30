@@ -1,0 +1,43 @@
+[
+  {
+    "max_new_tokens": 150,
+    "prompt": "To be",
+    "step": 100,
+    "temperature": 0.8,
+    "text": "To be thI I shat-uve dis wiis\nI by\nAs hatin, his tourle; this bbuw.\n\nHARIZKY bit send thin bly wearre dome thaten thing\nMasournerdound ble hous wis k'cand ",
+    "wall_time_sec": 21.783
+  },
+  {
+    "max_new_tokens": 150,
+    "prompt": "To be",
+    "step": 200,
+    "temperature": 0.8,
+    "text": "To be likes:\nThe to speer apace our and be doys in to more\nAs by the stan will prorted of hirsing,\nAnd that nreel the ale this will the upearth\nIf kushs?\nI",
+    "wall_time_sec": 41.9733
+  },
+  {
+    "max_new_tokens": 150,
+    "prompt": "To be",
+    "step": 300,
+    "temperature": 0.8,
+    "text": "To bear deers\nWhere? Dad did do fay's such our lofe,\nA tagaus of the and would be than the hound.\n\nDLARENE:\nWhaDh well, Resen your bare a as fear shall war",
+    "wall_time_sec": 61.8707
+  },
+  {
+    "max_new_tokens": 150,
+    "prompt": "To be",
+    "step": 400,
+    "temperature": 0.8,
+    "text": "To beenced\nUpon my pucentle on the mounty with the field,\nAnd but she gain to so I will in Hel touch\nTall to the purted hen dempekly: and should cuntand\nAn",
+    "wall_time_sec": 80.294
+  },
+  {
+    "final": true,
+    "max_new_tokens": 150,
+    "prompt": "To be",
+    "step": 499,
+    "temperature": 0.8,
+    "text": "To beath they commenting pown:\nThe prince me\nso prison.\n\nBRUTUS:\nWhy now had thou flearent, tell it deather,\nWill thy trouthly to the brother.\n\nFrown Corio",
+    "wall_time_sec": 100.1029
+  }
+]
