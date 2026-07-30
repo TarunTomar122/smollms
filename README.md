@@ -10,7 +10,8 @@ reproduction or a benchmark leaderboard.
 Start with the [architecture lab chapter](docs/architecture-lab.md). It explains
 the dense control, each branch, what is deliberately omitted, and how to make a
 comparison that means something. See [recorded results](docs/results.md) for
-the actual run artifacts and their limits.
+the actual run artifacts and their limits. For a paper-style read, open the
+[published experiment report](https://taruntomar122.github.io/smollms/).
 
 ## Quick start
 

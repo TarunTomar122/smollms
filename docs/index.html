@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A paper-style report on tiny, inspectable LLM architecture experiments.">
+  <title>smollms — architecture experiments</title>
+  <style>
+    :root { color-scheme: light; }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: #fff;
+      color: #151515;
+      font: 17px/1.62 Georgia, "Times New Roman", serif;
+    }
+    main { width: min(900px, calc(100% - 40px)); margin: 0 auto; padding: 56px 0 96px; }
+    header { border-bottom: 1px solid #222; padding-bottom: 28px; margin-bottom: 36px; }
+    .eyebrow, nav, .meta, th, .note, code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .eyebrow { font-size: .76rem; letter-spacing: .08em; text-transform: uppercase; margin: 0 0 12px; }
+    h1, h2, h3 { font-weight: 400; line-height: 1.14; }
+    h1 { font-size: clamp(2.25rem, 7vw, 4.5rem); max-width: 760px; margin: 0; letter-spacing: -.045em; }
+    h2 { border-top: 1px solid #222; font-size: 2rem; margin: 74px 0 20px; padding-top: 18px; }
+    h3 { font-size: 1.35rem; margin: 38px 0 10px; }
+    p { margin: 0 0 18px; }
+    a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: .16em; }
+    a:hover { text-decoration-thickness: 2px; }
+    nav { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: .76rem; margin-top: 26px; }
+    .meta { color: #555; font-size: .8rem; margin: 18px 0 0; }
+    .lede { font-size: 1.3rem; max-width: 720px; margin: 26px 0 0; }
+    .abstract { border-left: 3px solid #222; margin: 34px 0; padding: 5px 0 5px 20px; }
+    .abstract p:last-child { margin-bottom: 0; }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin: 28px 0; }
+    .metric { border-top: 1px solid #222; padding-top: 9px; }
+    .metric strong { display: block; font-size: 1.7rem; font-weight: 400; line-height: 1.1; }
+    .metric span { display: block; font: .76rem/1.4 ui-monospace, monospace; margin-top: 6px; }
+    .diagram { border: 1px solid #999; font: .82rem/1.45 ui-monospace, monospace; overflow-x: auto; padding: 20px; white-space: pre; }
+    .comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 28px 0; }
+    figure { margin: 0; }
+    figure img { border: 1px solid #bbb; display: block; height: auto; width: 100%; }
+    figcaption { color: #555; font-size: .84rem; margin-top: 8px; }
+    table { border-collapse: collapse; font-size: .88rem; margin: 24px 0; width: 100%; }
+    th { font-size: .7rem; font-weight: 400; letter-spacing: .03em; text-align: left; text-transform: uppercase; }
+    td, th { border-bottom: 1px solid #bbb; padding: 9px 8px; vertical-align: top; }
+    td:first-child, th:first-child { padding-left: 0; }
+    td:last-child, th:last-child { padding-right: 0; }
+    .callout { background: #f5f5f5; border: 1px solid #ddd; margin: 28px 0; padding: 20px; }
+    .callout p:last-child { margin-bottom: 0; }
+    ol, ul { padding-left: 24px; }
+    li { margin: 8px 0; }
+    code { font-size: .84em; }
+    pre { background: #f5f5f5; border: 1px solid #ddd; font-size: .78rem; overflow-x: auto; padding: 16px; }
+    footer { border-top: 1px solid #222; color: #555; font-size: .85rem; margin-top: 80px; padding-top: 18px; }
+    @media (max-width: 680px) {
+      main { width: min(100% - 28px, 900px); padding-top: 30px; }
+      .grid, .comparison { grid-template-columns: 1fr; }
+      table { display: block; overflow-x: auto; white-space: nowrap; }
+    }
+    @media print {
+      body { font-size: 11pt; }
+      main { max-width: none; padding: 0; width: 100%; }
+      nav { display: none; }
+      h2 { break-after: avoid; }
+      figure, table, .callout { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="eyebrow">smollms / experiment report / July 2026</p>
+      <h1>What remains when frontier LLM ideas are made small enough to inspect?</h1>
+      <p class="lede">A paper-style learning lab for Qwen-style dense decoding, Kimi hybrid attention, GLM sparse selection, and DeepSeek V4 local-compressed memory.</p>
+      <nav aria-label="Contents">
+        <a href="#question">Question</a>
+        <a href="#method">Method</a>
+        <a href="#architectures">Architectures</a>
+        <a href="#experiments">Experiments</a>
+        <a href="#results">Results</a>
+        <a href="#learnings">Learnings</a>
+        <a href="#reproduce">Reproduce</a>
+      </nav>
+      <p class="meta">Tiny Shakespeare · character-level language modeling · CPU · 2,000 update steps · seed 1337</p>
+    </header>
+
+    <section id="question">
+      <p class="eyebrow">01 / question</p>
+      <h2>Not a leaderboard</h2>
+      <p>Frontier LLM papers arrive as bundles: a new attention mechanism, a routing rule, a memory layout, a kernel, and a training recipe. At production scale these choices are entangled. This repository shrinks the systems until individual choices can be read in one sitting, changed in one place, and trained on the same corpus.</p>
+      <div class="abstract">
+        <p><strong>Working question.</strong> Which architectural ideas train cleanly at toy scale, what does each one cost, and what does a controlled ablation actually let us conclude?</p>
+      </div>
+      <p>All models predict the next character in Tiny Shakespeare. The goal is not good Shakespeare. It is a durable experimental habit: make one change, preserve the evidence, compare only the runs that answer one question, and say no more than the evidence supports.</p>
+    </section>
+
+    <section id="method">
+      <p class="eyebrow">02 / method</p>
+      <h2>One ordinary decoder, then one changed assumption</h2>
+      <p>The dense control is a compact decoder with token embeddings, RMSNorm, causal attention, RoPE, optional grouped-query attention, QK-Norm, SwiGLU, residual additions, and tied output embeddings.</p>
+      <div class="diagram" role="img" aria-label="Dense decoder data flow">characters -> integer ids -> token embedding -> [RMSNorm -> token mixer -> +] -> [RMSNorm -> channel mixer -> +] x N -> RMSNorm -> tied LM head -> next-character logits
+
+token mixer:   mixes information across positions
+channel mixer: transforms features within one position</div>
+      <p>That division is the organizing principle of the lab. Kimi changes channel routing and then the token mixer. GLM changes token selection while holding its channel mixer fixed. DeepSeek V4 changes how old context is represented, then changes only its channel mixer.</p>
+      <div class="grid" aria-label="Common experiment settings">
+        <div class="metric"><strong>65</strong><span>character vocabulary</span></div>
+        <div class="metric"><strong>64</strong><span>context tokens</span></div>
+        <div class="metric"><strong>2,000</strong><span>training steps per seeded run</span></div>
+      </div>
+      <p>Every run saves exact arguments, effective model configuration, corpus fingerprint, loss history, samples, plot, summary, and checkpoint. The published repository keeps compact evidence and comparison charts; local runs keep checkpoints and full metric streams.</p>
+    </section>
+
+    <section id="architectures">
+      <p class="eyebrow">03 / architectures</p>
+      <h2>Four ways to spend compute</h2>
+
+      <h3>Dense / Qwen-style control</h3>
+      <p>Full causal attention reads every earlier token. SwiGLU transforms every token through one dense channel mixer. This is the control, not a weak baseline: it includes the normal modern decoder details needed to make later changes legible.</p>
+
+      <h3>Kimi-style: recurrent memory and latent routing</h3>
+      <p>Kimi step 1 replaces dense SwiGLU with a latent-space mixture of experts: tokens are compressed, routed to a small top-k expert set plus a shared expert, then expanded back to the residual width. Step 2 changes the token mixer. Kimi Delta Attention maintains a causal recurrent state and writes only the current prediction error. Gated MLA keeps a full-attention slot with a compact K/V latent. AttnRes can then read useful earlier states across depth.</p>
+      <div class="diagram" role="img" aria-label="Kimi branch data flow">residual stream
+   |-- full causal attention -----------|  all_full control
+   |-- KDA recurrent delta state -------|  hybrid schedules
+   |-- Gated MLA compact K/V latent ----|
+   +-> residual add -> LatentMoE -> residual add -> optional AttnRes</div>
+
+      <h3>GLM-style: select, then read</h3>
+      <p>Dense attention scores all causal positions and reads all of them. The GLM toy inserts a learned indexer: it scores causal positions, keeps top-k, and runs ordinary attention over only the selected K/V vectors. Its first layer remains dense SwiGLU; later layers use sigmoid-routed experts and a shared expert. The dense-attention GLM control keeps this channel mixer unchanged.</p>
+      <div class="diagram" role="img" aria-label="GLM sparse attention data flow">stream -> index query/key -> causal index scores -> top-k selected positions
+                                                 |
+stream -> ordinary Q/K/V -----------------------+-> gather selected K/V -> softmax read -> update</div>
+
+      <h3>DeepSeek V4-style: exact nearby context, compressed old context</h3>
+      <p>The V4 toy partitions history into local raw K/V, boundary raw K/V, and learned compressed entries for completed old chunks. The boundary exists so every past token is represented exactly once: no dropped position and no duplicate read. The optional mixed MoE uses static token-ID hash routing in the first layer, then learned routing in later layers.</p>
+      <div class="diagram" role="img" aria-label="DeepSeek V4 local compressed data flow">old completed chunks -> learned compressed memory --\
+partial boundary -----> raw K/V -----------------+-> old-context read --\
+recent local window --> raw K/V ----------------------------------------+-> summed update</div>
+    </section>
+
+    <section id="experiments">
+      <p class="eyebrow">04 / experiments</p>
+      <h2>Comparisons are pairs, not a ranking</h2>
+      <p>Architectures naturally carry different parameter and active-compute profiles. A global winner table would be misleading. The valid comparison is the closest pair that changes one component.</p>
+      <table>
+        <thead><tr><th>Question</th><th>Hold fixed</th><th>Change</th></tr></thead>
+        <tbody>
+          <tr><td>Does Kimi hybrid attention help?</td><td>Kimi MoE, width/depth, seed, data, optimizer, AttnRes off</td><td><code>all_full</code> vs <code>1L1F</code></td></tr>
+          <tr><td>Is the GLM selector the bottleneck?</td><td>Dense-prefix routed MoE, seed, data, width/depth, optimizer</td><td>DSA vs dense attention</td></tr>
+          <tr><td>Does V4 mixed MoE help?</td><td>Local-compressed attention, seed, data, width/depth, optimizer</td><td>Dense SwiGLU vs hash-then-routed MoE</td></tr>
+        </tbody>
+      </table>
+      <div class="callout"><p><strong>Interpretation rule.</strong> First check corpus fingerprint, seed, context length, optimizer, steps, and device. Then check parameter count and wall time. Only then compare validation curves. Samples are qualitative supporting evidence, never the primary metric.</p></div>
+    </section>
+
+    <section id="results">
+      <p class="eyebrow">05 / results</p>
+      <h2>What the seeded runs show</h2>
+
+      <h3>Kimi: lower loss, materially higher cost</h3>
+      <table>
+        <thead><tr><th>Schedule</th><th>Parameters</th><th>Validation loss</th><th>Wall time</th></tr></thead>
+        <tbody>
+          <tr><td><code>all_full</code></td><td>387,072</td><td>1.7335</td><td>243.6 s</td></tr>
+          <tr><td><code>1L1F</code></td><td>469,888</td><td>1.4441</td><td>1,118.6 s</td></tr>
+        </tbody>
+      </table>
+      <figure><img src="assets/seeded-kimi-full-vs-1l1f/loss_comparison.png" alt="Training and validation loss curves comparing Kimi full attention with the 1L1F hybrid."><figcaption>One seeded Kimi comparison. The hybrid schedule improves validation loss but is 4.6× slower and has more parameters.</figcaption></figure>
+
+      <h3>GLM: dense attention wins decisively in this toy</h3>
+      <table>
+        <thead><tr><th>Token mixer</th><th>Parameters</th><th>Best / final validation loss</th><th>Wall time</th></tr></thead>
+        <tbody>
+          <tr><td>DSA top-k selector</td><td>1,454,080</td><td>2.1032 / 2.1531</td><td>369.7 s</td></tr>
+          <tr><td>Dense attention</td><td>1,388,544</td><td>1.5021 / 1.5021</td><td>253.0 s</td></tr>
+        </tbody>
+      </table>
+      <figure><img src="assets/seeded-glm-dsa-vs-dense/loss_comparison.png" alt="Training and validation loss curves comparing GLM DSA with dense attention."><figcaption>Same seed and corrected GLM channel mixer. Dense attention wins by 0.6011 best validation loss and is faster.</figcaption></figure>
+
+      <h3>DeepSeek V4: a modest MoE improvement with a visible cost</h3>
+      <table>
+        <thead><tr><th>Channel mixer</th><th>Parameters</th><th>Validation loss</th><th>Wall time</th></tr></thead>
+        <tbody>
+          <tr><td>Dense SwiGLU</td><td>833,024</td><td>1.5215</td><td>244.7 s</td></tr>
+          <tr><td>Hash-then-routed MoE</td><td>1,289,728</td><td>1.4865</td><td>355.1 s</td></tr>
+        </tbody>
+      </table>
+      <figure><img src="assets/seeded-v4-dense-vs-moe/loss_comparison.png" alt="Training and validation loss curves comparing DeepSeek V4 dense FFN with mixed MoE."><figcaption>Mixed MoE lowers validation loss by 0.0350, while adding 456,704 parameters and 45% wall time.</figcaption></figure>
+    </section>
+
+    <section id="learnings">
+      <p class="eyebrow">06 / learnings</p>
+      <h2>Small models still tell useful truths</h2>
+      <ol>
+        <li><strong>The dense decoder is hard to displace.</strong> It is the right control because it is already a strong, understandable system—not an intentionally weak baseline.</li>
+        <li><strong>Hybrid Kimi token mixing can learn better here, but not cheaply.</strong> The recurrent implementation changes loss and runtime together. Both measurements belong to the result.</li>
+        <li><strong>The current GLM failure is localized.</strong> Holding its corrected MoE fixed and changing only the token mixer makes DSA the likely bottleneck in this exact toy setting.</li>
+        <li><strong>V4-style routing is promising but not settled.</strong> Mixed MoE improves one seeded run, but its extra parameters and runtime prevent a cost-adjusted claim.</li>
+        <li><strong>Negative results are productively specific.</strong> “This DSA implementation did not help at 64 tokens” is a better outcome than a vague architecture ranking.</li>
+      </ol>
+      <div class="callout"><p><strong>What this does not claim.</strong> These are not Qwen, Kimi, GLM, or DeepSeek reproductions. There are no fused kernels, production caches, distributed routing, BPE tokenization, long-context throughput measurements, or multi-seed scaling conclusions. Those omissions are deliberate: this lab teaches the data flow before the systems engineering.</p></div>
+    </section>
+
+    <section id="reproduce">
+      <p class="eyebrow">07 / reproduce</p>
+      <h2>Run the experiment suite</h2>
+      <pre>python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -e ".[dev]"
+
+SEED=1337 DEVICE=cpu STEPS=2000 sh scripts/train_story_suite.sh
+python -m smollms.compare runs/&lt;run_a&gt; runs/&lt;run_b&gt;</pre>
+      <p>The suite writes one reopenable directory per run. Repeat promising pairs across multiple seeds before promoting a gap to a general claim. The full code, architecture walkthrough, raw summaries, and historical comparisons are available in the <a href="https://github.com/TarunTomar122/smollms">repository</a>.</p>
+    </section>
+
+    <footer>smollms · a learning lab for one architectural idea at a time · <a href="architecture-lab.md">full architecture chapter</a> · <a href="results.md">complete run results</a></footer>
+  </main>
+</body>
+</html>
