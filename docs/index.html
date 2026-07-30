@@ -70,8 +70,8 @@
   <main>
     <header>
       <p class="eyebrow">smollms / experiment report / July 2026</p>
-      <h1>What remains when frontier LLM ideas are made small enough to inspect?</h1>
-      <p class="lede">A paper-style learning lab for Qwen-style dense decoding, Kimi hybrid attention, GLM sparse selection, and DeepSeek V4 local-compressed memory.</p>
+      <h1>i trained four tiny LLMs on Shakespeare. then i tried to figure out what they were actually doing.</h1>
+      <p class="lede">Qwen-style dense attention, Kimi-style recurrence, GLM-style token selection, and DeepSeek V4-style compressed memory. All small enough to read without getting lost.</p>
       <nav aria-label="Contents">
         <a href="#question">Question</a>
         <a href="#method">Method</a>
@@ -86,40 +86,48 @@
 
     <section id="question">
       <p class="eyebrow">01 / question</p>
-      <h2>Not a leaderboard</h2>
-      <p>Frontier LLM papers arrive as bundles: a new attention mechanism, a routing rule, a memory layout, a kernel, and a training recipe. At production scale these choices are entangled. This repository shrinks the systems until individual choices can be read in one sitting, changed in one place, and trained on the same corpus.</p>
+      <h2>why i made this</h2>
+      <p>Big model papers usually change five things at once. There is a new attention trick, a router, a cache layout, a training recipe, and a GPU kernel.</p>
+      <p>I wanted to pull those ideas apart without needing a cluster or pretending I had reproduced a frontier model.</p>
+      <p>So every model here predicts the next character in Tiny Shakespeare. That makes the task almost silly. Good. It means I can stare at one mechanism, change it, and run the same little experiment again.</p>
       <div class="abstract">
-        <p><strong>Working question.</strong> Which architectural ideas train cleanly at toy scale, what does each one cost, and what does a controlled ablation actually let us conclude?</p>
+        <p>the actual question: what changed inside the model, did the run get better or worse, and what did it cost?</p>
       </div>
-      <p>All models predict the next character in Tiny Shakespeare. The goal is not good Shakespeare. It is a durable experimental habit: make one change, preserve the evidence, compare only the runs that answer one question, and say no more than the evidence supports.</p>
+      <p>This is not a Qwen, Kimi, GLM, or DeepSeek reproduction. It is my stripped-down version of a few ideas from those families. The useful bit is the comparison, not the generated Shakespeare.</p>
     </section>
 
     <section id="method">
       <p class="eyebrow">02 / method</p>
-      <h2>One ordinary decoder, then one changed assumption</h2>
-      <p>The dense control is a compact decoder with token embeddings, RMSNorm, causal attention, RoPE, optional grouped-query attention, QK-Norm, SwiGLU, residual additions, and tied output embeddings.</p>
+      <h2>start with a normal decoder</h2>
+      <p>I start with a plain causal decoder: character embedding, position information through RoPE, RMSNorm, attention, SwiGLU, residual connections, and a tied output head. Nothing clever happens before the comparison starts.</p>
       <div class="diagram" role="img" aria-label="Dense decoder data flow">characters -> integer ids -> token embedding -> [RMSNorm -> token mixer -> +] -> [RMSNorm -> channel mixer -> +] x N -> RMSNorm -> tied LM head -> next-character logits
 
 token mixer:   mixes information across positions
 channel mixer: transforms features within one position</div>
-      <p>That division is the organizing principle of the lab. Kimi changes channel routing and then the token mixer. GLM changes token selection while holding its channel mixer fixed. DeepSeek V4 changes how old context is represented, then changes only its channel mixer.</p>
+      <p>Each block does two different jobs. Attention mixes information between positions. The SwiGLU MLP changes features within one position. Keeping those jobs separate is how I avoided changing the whole model at once.</p>
       <div class="grid" aria-label="Common experiment settings">
         <div class="metric"><strong>65</strong><span>character vocabulary</span></div>
         <div class="metric"><strong>64</strong><span>context tokens</span></div>
         <div class="metric"><strong>2,000</strong><span>training steps per seeded run</span></div>
       </div>
-      <p>Every run saves exact arguments, effective model configuration, corpus fingerprint, loss history, samples, plot, summary, and checkpoint. The published repository keeps compact evidence and comparison charts; local runs keep checkpoints and full metric streams.</p>
+      <p>Every run saves its arguments, final configuration, corpus fingerprint, loss history, samples, plot, summary, and checkpoint. The repo keeps the small artifacts and comparison plots. Local runs keep the heavy stuff too.</p>
     </section>
 
     <section id="architectures">
       <p class="eyebrow">03 / architectures</p>
-      <h2>Four ways to spend compute</h2>
+      <h2>what each model actually does</h2>
 
       <h3>Dense / Qwen-style control</h3>
-      <p>Full causal attention reads every earlier token. SwiGLU transforms every token through one dense channel mixer. This is the control, not a weak baseline: it includes the normal modern decoder details needed to make later changes legible.</p>
+      <p>At position <code>t</code>, every attention head scores tokens <code>0…t</code>, softmaxes those scores, and takes a weighted sum of their values. Then every token goes through the same SwiGLU MLP. There is no routing and no compressed history.</p>
+      <p>This is the thing the other branches have to beat. It gets a direct read of every earlier character, and it has very few places for a toy implementation to make a mistake.</p>
 
       <h3>Kimi-style: recurrent memory and latent routing</h3>
-      <p>Kimi step 1 replaces dense SwiGLU with a latent-space mixture of experts: tokens are compressed, routed to a small top-k expert set plus a shared expert, then expanded back to the residual width. Step 2 changes the token mixer. Kimi Delta Attention maintains a causal recurrent state and writes only the current prediction error. Gated MLA keeps a full-attention slot with a compact K/V latent. AttnRes can then read useful earlier states across depth.</p>
+      <p>First I replace the dense MLP with LatentMoE. A token goes from <code>d_model</code> down to a smaller latent vector. A router picks its top-k specialists in that smaller space.</p>
+      <p>Their outputs are mixed with an always-on shared expert, then projected back up.</p>
+      <p>Then comes the attention experiment. KDA keeps one <code>head_dim × head_dim</code> state per head. For each token it decays old state, predicts the current value from its key, and writes only the residual error.</p>
+      <p>The next query reads that state. Old context lives in a recurrence, not in a list of K/V vectors.</p>
+      <p>Gated MLA still does full causal attention, but stores a smaller latent per token and reconstructs K and V from it. The <code>1L1F</code> run alternates KDA and Gated MLA.</p>
+      <p><code>all_full</code> keeps full attention in every layer. AttnRes is off for this comparison.</p>
       <div class="diagram" role="img" aria-label="Kimi branch data flow">residual stream
    |-- full causal attention -----------|  all_full control
    |-- KDA recurrent delta state -------|  hybrid schedules
@@ -127,13 +135,21 @@ channel mixer: transforms features within one position</div>
    +-> residual add -> LatentMoE -> residual add -> optional AttnRes</div>
 
       <h3>GLM-style: select, then read</h3>
-      <p>Dense attention scores all causal positions and reads all of them. The GLM toy inserts a learned indexer: it scores causal positions, keeps top-k, and runs ordinary attention over only the selected K/V vectors. Its first layer remains dense SwiGLU; later layers use sigmoid-routed experts and a shared expert. The dense-attention GLM control keeps this channel mixer unchanged.</p>
+      <p>The GLM branch adds a separate, smaller query/key pair just for choosing tokens. For every head and query position, that indexer scores the causal prefix and keeps top-k positions.</p>
+      <p>Normal attention then runs only on the gathered K/V vectors, with the index score added back into the final attention score.</p>
+      <p>Important caveat: this toy still builds the whole index-score matrix before taking top-k. It is testing whether learned selection helps model quality at 64 characters. It is not testing a sparse kernel or long-context speed.</p>
+      <p>Layer one keeps a dense SwiGLU. Later layers use sigmoid-routed experts plus one shared expert. The dense-attention GLM control uses that exact same channel mixer, so the comparison is really selector versus no selector.</p>
       <div class="diagram" role="img" aria-label="GLM sparse attention data flow">stream -> index query/key -> causal index scores -> top-k selected positions
                                                  |
 stream -> ordinary Q/K/V -----------------------+-> gather selected K/V -> softmax read -> update</div>
 
       <h3>DeepSeek V4-style: exact nearby context, compressed old context</h3>
-      <p>The V4 toy partitions history into local raw K/V, boundary raw K/V, and learned compressed entries for completed old chunks. The boundary exists so every past token is represented exactly once: no dropped position and no duplicate read. The optional mixed MoE uses static token-ID hash routing in the first layer, then learned routing in later layers.</p>
+      <p>This branch gives a query two reads. One is ordinary causal attention over the most recent local window. The other reads an older prefix made from learned chunk summaries plus a small raw boundary.</p>
+      <p>The two outputs are added before the output projection.</p>
+      <p>A completed old chunk is flattened per head and passed through learned K and V compression layers. The chunk currently crossing the local-window boundary stays raw.</p>
+      <p>That annoying-looking boundary rule matters: without it, a few old tokens disappear whenever the window cuts through a chunk.</p>
+      <p>The mixed-MoE variant uses token-ID hash routing only in its first layer, then learned sqrt-softplus routing later. The dense version leaves the attention layout alone and uses SwiGLU instead.</p>
+      <p>So this result is about the channel mixer, not compressed attention versus full attention.</p>
       <div class="diagram" role="img" aria-label="DeepSeek V4 local compressed data flow">old completed chunks -> learned compressed memory --\
 partial boundary -----> raw K/V -----------------+-> old-context read --\
 recent local window --> raw K/V ----------------------------------------+-> summed update</div>
@@ -141,8 +157,8 @@ recent local window --> raw K/V ----------------------------------------+-> summ
 
     <section id="experiments">
       <p class="eyebrow">04 / experiments</p>
-      <h2>Comparisons are pairs, not a ranking</h2>
-      <p>Architectures naturally carry different parameter and active-compute profiles. A global winner table would be misleading. The valid comparison is the closest pair that changes one component.</p>
+      <h2>how i compared them</h2>
+      <p>These models have different parameter counts and different work per token, so putting all seven runs in one winner table would be kind of fake. I only compare pairs where one important thing changes.</p>
       <table>
         <thead><tr><th>Question</th><th>Hold fixed</th><th>Change</th></tr></thead>
         <tbody>
@@ -151,14 +167,14 @@ recent local window --> raw K/V ----------------------------------------+-> summ
           <tr><td>Does V4 mixed MoE help?</td><td>Local-compressed attention, seed, data, width/depth, optimizer</td><td>Dense SwiGLU vs hash-then-routed MoE</td></tr>
         </tbody>
       </table>
-      <div class="callout"><p><strong>Interpretation rule.</strong> First check corpus fingerprint, seed, context length, optimizer, steps, and device. Then check parameter count and wall time. Only then compare validation curves. Samples are qualitative supporting evidence, never the primary metric.</p></div>
+      <div class="callout"><p>I check the boring things first: corpus fingerprint, seed, context length, optimizer, steps, device, parameter count, and wall time. Then I look at validation loss. Samples are fun, but they do not decide the result.</p></div>
     </section>
 
     <section id="results">
       <p class="eyebrow">05 / results</p>
-      <h2>What the seeded runs show</h2>
+      <h2>what happened</h2>
 
-      <h3>Kimi: lower loss, materially higher cost</h3>
+      <h3>Kimi: better loss, 4.6× more time</h3>
       <table>
         <thead><tr><th>Schedule</th><th>Parameters</th><th>Validation loss</th><th>Wall time</th></tr></thead>
         <tbody>
@@ -166,9 +182,9 @@ recent local window --> raw K/V ----------------------------------------+-> summ
           <tr><td><code>1L1F</code></td><td>469,888</td><td>1.4441</td><td>1,118.6 s</td></tr>
         </tbody>
       </table>
-      <figure><img src="assets/seeded-kimi-full-vs-1l1f/loss_comparison.png" alt="Training and validation loss curves comparing Kimi full attention with the 1L1F hybrid."><figcaption>One seeded Kimi comparison. The hybrid schedule improves validation loss but is 4.6× slower and has more parameters.</figcaption></figure>
+      <figure><img src="assets/seeded-kimi-full-vs-1l1f/loss_comparison.png" alt="Training and validation loss curves comparing Kimi full attention with the 1L1F hybrid."><figcaption>The hybrid run reached lower validation loss. It also took 1,118.6 seconds instead of 243.6 seconds and has more parameters.</figcaption></figure>
 
-      <h3>GLM: dense attention wins decisively in this toy</h3>
+      <h3>GLM: the selector lost to dense attention here</h3>
       <table>
         <thead><tr><th>Token mixer</th><th>Parameters</th><th>Best / final validation loss</th><th>Wall time</th></tr></thead>
         <tbody>
@@ -176,9 +192,9 @@ recent local window --> raw K/V ----------------------------------------+-> summ
           <tr><td>Dense attention</td><td>1,388,544</td><td>1.5021 / 1.5021</td><td>253.0 s</td></tr>
         </tbody>
       </table>
-      <figure><img src="assets/seeded-glm-dsa-vs-dense/loss_comparison.png" alt="Training and validation loss curves comparing GLM DSA with dense attention."><figcaption>Same seed and corrected GLM channel mixer. Dense attention wins by 0.6011 best validation loss and is faster.</figcaption></figure>
+      <figure><img src="assets/seeded-glm-dsa-vs-dense/loss_comparison.png" alt="Training and validation loss curves comparing GLM DSA with dense attention."><figcaption>Same seed and channel mixer. Dense attention finished 116.7 seconds sooner and its best validation loss was 0.6011 lower.</figcaption></figure>
 
-      <h3>DeepSeek V4: a modest MoE improvement with a visible cost</h3>
+      <h3>DeepSeek V4: a small MoE gain, with a real bill</h3>
       <table>
         <thead><tr><th>Channel mixer</th><th>Parameters</th><th>Validation loss</th><th>Wall time</th></tr></thead>
         <tbody>
@@ -186,35 +202,35 @@ recent local window --> raw K/V ----------------------------------------+-> summ
           <tr><td>Hash-then-routed MoE</td><td>1,289,728</td><td>1.4865</td><td>355.1 s</td></tr>
         </tbody>
       </table>
-      <figure><img src="assets/seeded-v4-dense-vs-moe/loss_comparison.png" alt="Training and validation loss curves comparing DeepSeek V4 dense FFN with mixed MoE."><figcaption>Mixed MoE lowers validation loss by 0.0350, while adding 456,704 parameters and 45% wall time.</figcaption></figure>
+      <figure><img src="assets/seeded-v4-dense-vs-moe/loss_comparison.png" alt="Training and validation loss curves comparing DeepSeek V4 dense FFN with mixed MoE."><figcaption>Mixed MoE lowered validation loss by 0.0350. It also added 456,704 parameters and 45% wall time.</figcaption></figure>
     </section>
 
     <section id="learnings">
       <p class="eyebrow">06 / learnings</p>
-      <h2>Small models still tell useful truths</h2>
+      <h2>what i learned</h2>
       <ol>
-        <li><strong>The dense decoder is hard to displace.</strong> It is the right control because it is already a strong, understandable system—not an intentionally weak baseline.</li>
-        <li><strong>Hybrid Kimi token mixing can learn better here, but not cheaply.</strong> The recurrent implementation changes loss and runtime together. Both measurements belong to the result.</li>
-        <li><strong>The current GLM failure is localized.</strong> Holding its corrected MoE fixed and changing only the token mixer makes DSA the likely bottleneck in this exact toy setting.</li>
-        <li><strong>V4-style routing is promising but not settled.</strong> Mixed MoE improves one seeded run, but its extra parameters and runtime prevent a cost-adjusted claim.</li>
-        <li><strong>Negative results are productively specific.</strong> “This DSA implementation did not help at 64 tokens” is a better outcome than a vague architecture ranking.</li>
+        <li>The normal dense decoder is really hard to beat when the context is 64 characters. It sees all of the history and has fewer moving parts.</li>
+        <li>The Kimi schedule learned better in this run. That result comes attached to a 4.6× runtime increase, which makes the loss number only half the story.</li>
+        <li>The GLM result was useful because it narrowed the problem down. With the MoE held fixed, the selector is what made this toy worse.</li>
+        <li>The V4 MoE result is too small for me to get excited about yet. It improved one seeded run, but it also made the model bigger and slower.</li>
+        <li>“This learned selector did not help at 64 characters” is a perfectly fine result. It is more honest than declaring an architecture good or bad in general.</li>
       </ol>
-      <div class="callout"><p><strong>What this does not claim.</strong> These are not Qwen, Kimi, GLM, or DeepSeek reproductions. There are no fused kernels, production caches, distributed routing, BPE tokenization, long-context throughput measurements, or multi-seed scaling conclusions. Those omissions are deliberate: this lab teaches the data flow before the systems engineering.</p></div>
+      <div class="callout"><p>Stuff this does not tell you: which model wins at scale, which one is faster on a GPU, whether any result survives many seeds, or how these ideas behave with BPE tokens and real context lengths. That needs a different experiment.</p></div>
     </section>
 
     <section id="reproduce">
       <p class="eyebrow">07 / reproduce</p>
-      <h2>Run the experiment suite</h2>
+      <h2>run it yourself</h2>
       <pre>python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -e ".[dev]"
 
 SEED=1337 DEVICE=cpu STEPS=2000 sh scripts/train_story_suite.sh
 python -m smollms.compare runs/&lt;run_a&gt; runs/&lt;run_b&gt;</pre>
-      <p>The suite writes one reopenable directory per run. Repeat promising pairs across multiple seeds before promoting a gap to a general claim. The full code, architecture walkthrough, raw summaries, and historical comparisons are available in the <a href="https://github.com/TarunTomar122/smollms">repository</a>.</p>
+      <p>Each run gets a directory you can reopen later. If something looks interesting, run the pair with more seeds before saying it is a pattern. The full walkthrough, code, and raw summaries are in the <a href="https://github.com/TarunTomar122/smollms">repository</a>.</p>
     </section>
 
-    <footer>smollms · a learning lab for one architectural idea at a time · <a href="architecture-lab.md">full architecture chapter</a> · <a href="results.md">complete run results</a></footer>
+    <footer>smollms · tiny architecture experiments with the receipts · <a href="architecture-lab.md">full architecture chapter</a> · <a href="results.md">complete run results</a></footer>
   </main>
 </body>
 </html>
