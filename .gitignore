@@ -25,3 +25,4 @@ runs/*/*
 !runs/*/samples.json
 checkpoints/
 .DS_Store
+.opencode/

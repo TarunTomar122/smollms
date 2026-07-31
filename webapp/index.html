@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>smollms &mdash; run the four architectures</title>
+<style>
+  body { font-family: monospace; margin: 2rem; }
+  h1 { margin-top: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 1rem; }
+  fieldset { display: flex; flex-direction: column; gap: .5rem; }
+  textarea { width: 100%; min-height: 4rem; font: inherit; box-sizing: border-box; }
+  pre { white-space: pre-wrap; word-wrap: break-word; border: 1px solid #ccc; padding: .5rem; min-height: 6rem; background: #fafafa; }
+  .meta { color: #555; font-size: .8em; }
+  .error { color: #a00; }
+</style>
+</head>
+<body>
+<h1>smollms</h1>
+<p>One button per architecture. First run on each model loads its checkpoint, so it may take a few seconds.</p>
+<div class="grid" id="grid"></div>
+
+<script>
+const ARCHES = ["dense", "kimi", "glm", "deepseekv4"];
+const NAMES = {
+  dense: "Dense / Qwen-style",
+  kimi: "Kimi-style (K2)",
+  glm: "GLM-style",
+  deepseekv4: "DeepSeek V4-style",
+};
+
+function card(arch) {
+  const el = document.createElement("fieldset");
+  el.innerHTML = `
+    <legend><strong>${NAMES[arch]}</strong> <span class="meta">${arch}</span></legend>
+    <label>prompt <input type="text" value="To be" style="width:100%;box-sizing:border-box"></label>
+    <label>max new tokens <input type="number" value="200" min="1" max="1000" style="width:5rem"></label>
+    <label>temperature <input type="number" value="0.8" min="0" max="2" step="0.1" style="width:5rem"></label>
+    <button>run</button>
+    <div class="meta">params &mdash; vocab &mdash; layers &mdash; max_seq</div>
+    <pre>output will appear here</pre>
+  `;
+  const [prompt, maxNew, temp, btn, meta, out] = el.querySelectorAll("input, button, div, pre");
+  btn.addEventListener("click", async () => {
+    out.textContent = "thinking...";
+    out.classList.remove("error");
+    meta.textContent = "";
+    btn.disabled = true;
+    try {
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          arch,
+          prompt: prompt.value,
+          max_new_tokens: parseInt(maxNew.value, 10),
+          temperature: parseFloat(temp.value),
+        }),
+      });
+      const data = await res.json();
+      if (data.error) {
+        out.textContent = data.error;
+        out.classList.add("error");
+      } else {
+        out.textContent = data.text;
+        const m = data.model;
+        meta.textContent = `params ${m.params.toLocaleString()} | vocab ${m.vocab} | d_model ${m.d_model} | layers ${m.layers} | max_seq ${m.max_seq}`;
+      }
+    } catch (e) {
+      out.textContent = String(e);
+      out.classList.add("error");
+    } finally {
+      btn.disabled = false;
+    }
+  });
+  return el;
+}
+
+for (const arch of ARCHES) document.getElementById("grid").appendChild(card(arch));
+</script>
+</body>
+</html>
